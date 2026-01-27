@@ -1,29 +1,76 @@
 extends CharacterBody2D
 
 @export var speed := 120.0
-@export var pacman: Node2D  # Drag your Pac-Man node here in the editor
+@export var pacman: Node2D
+@export var tile_size := 24
+@export var tilemap: TileMap
 
-@onready var agent: NavigationAgent2D = $NavigationAgent2D
+enum Dir {UP, DOWN, LEFT, RIGHT}
+
+var current_dir: Dir = Dir.LEFT
+var next_dir: Dir = Dir.LEFT
+
+var dir_vectors := {
+	Dir.UP: Vector2.UP,
+	Dir.DOWN: Vector2.DOWN,
+	Dir.LEFT: Vector2.LEFT,
+	Dir.RIGHT: Vector2.RIGHT
+}
 
 func _ready():
-	# Optional: smooth turning
-	agent.path_desired_distance = 4
-	agent.target_desired_distance = 4
-	agent.avoidance_enabled = false
+	global_position = global_position.snapped(Vector2(tile_size, tile_size))
 
 func _physics_process(delta):
-	if not pacman:
+	if not pacman or not tilemap:
 		return
-	
-	# Set Pac-Man as the target
-	agent.target_position = pacman.global_position
-
-	# Get the next point along the path
-	var next_pos = agent.get_next_path_position()
-	if next_pos == null:
-		return
-	var direction = (next_pos - global_position).normalized()
-
-	# Move the ghost
-	velocity = direction * speed
+	if at_tile_center():
+		if is_blocked(current_dir):
+			choose_direction(pacman.global_position)
+		current_dir = next_dir
+	velocity = dir_vectors[current_dir] * speed
 	move_and_slide()
+
+func at_tile_center() -> bool:
+	return global_position == global_position.snapped(Vector2(tile_size, tile_size))
+
+func can_move(dir: Dir) -> bool:
+	var next_pos = global_position + dir_vectors[dir] * tile_size
+	var cell = tilemap.local_to_map(next_pos)
+	return tilemap.get_cell_source_id(0, cell) == -1
+
+func choose_direction(target_pos: Vector2):
+	var possible_dirs := []
+
+	for dir in Dir.values():
+		if dir == opposite(current_dir) and can_move(current_dir):
+			continue
+		if not can_move(dir):
+			continue
+		possible_dirs.append(dir)
+	if possible_dirs.size() == 0:
+		next_dir = opposite(current_dir)
+		return
+	var best_dir = possible_dirs[0]
+	var best_dist = (global_position + dir_vectors[best_dir] * tile_size).distance_to(target_pos)
+	for dir in possible_dirs:
+		var dist = (global_position + dir_vectors[dir] * tile_size).distance_to(target_pos)
+		if dist < best_dist:
+			best_dir = dir
+			best_dist = dist
+	var same_best := []
+	for dir in possible_dirs:
+		var dist = (global_position + dir_vectors[dir] * tile_size).distance_to(target_pos)
+		if abs(dist - best_dist) < 0.01:
+			same_best.append(dir)
+	next_dir = same_best[randi() % same_best.size()]
+
+func opposite(dir: Dir) -> Dir:
+	match dir:
+		Dir.UP: return Dir.DOWN
+		Dir.DOWN: return Dir.UP
+		Dir.LEFT: return Dir.RIGHT
+		Dir.RIGHT: return Dir.LEFT
+	return Dir.UP
+
+func is_blocked(dir: Dir) -> bool:
+	return not can_move(dir)

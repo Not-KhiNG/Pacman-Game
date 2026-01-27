@@ -1394,24 +1394,28 @@ collision_layer = 8
 
 [node name="ui" parent="." instance=ExtResource("7_344ge")]
 
-[node name="Ghost" parent="." node_paths=PackedStringArray("pacman") instance=ExtResource("8_344ge")]
+[node name="Ghost" parent="." node_paths=PackedStringArray("pacman", "tilemap") instance=ExtResource("8_344ge")]
 position = Vector2(6, -79)
 pacman = NodePath("../Player")
+tilemap = NodePath("../TileMap")
 
-[node name="Ghost2" parent="." node_paths=PackedStringArray("pacman") instance=ExtResource("9_d1ilt")]
+[node name="Ghost2" parent="." node_paths=PackedStringArray("pacman", "tilemap") instance=ExtResource("9_d1ilt")]
 position = Vector2(76, 60)
 speed = 115.0
 pacman = NodePath("../Player")
+tilemap = NodePath("../TileMap")
 
-[node name="Ghost3" parent="." node_paths=PackedStringArray("pacman") instance=ExtResource("10_6iyac")]
+[node name="Ghost3" parent="." node_paths=PackedStringArray("pacman", "tilemap") instance=ExtResource("10_6iyac")]
 position = Vector2(6, -1)
 speed = 110.0
 pacman = NodePath("../Player")
+tilemap = NodePath("../TileMap")
 
-[node name="Ghost4" parent="." node_paths=PackedStringArray("pacman") instance=ExtResource("11_fdnlq")]
+[node name="Ghost4" parent="." node_paths=PackedStringArray("pacman", "tilemap") instance=ExtResource("11_fdnlq")]
 position = Vector2(-63, 63)
 speed = 100.0
 pacman = NodePath("../Player")
+tilemap = NodePath("../TileMap")
 
 [connection signal="body_entered" from="Pellets/LargePellet" to="Pellets/LargePellet" method="_on_body_entered"]
 [connection signal="body_entered" from="Pellets/LargePellet2" to="Pellets/LargePellet2" method="_on_body_entered"]
