@@ -1,0 +1,7 @@
+[gd_resource type="Resource" load_steps=2 format=3 uid="uid://cyihyq7rubjq3"]
+
+[ext_resource type="Script" uid="uid://clb82fesdyrc5" path="res://Resource/movement_target.gd" id="1_giea1"]
+
+[resource]
+script = ExtResource("1_giea1")
+scatter_targets = [NodePath("MovementTargets/RectGhost/Scatter/Rect1"), NodePath("MovementTargets/RectGhost/Scatter/Rect2"), NodePath("MovementTargets/RectGhost/Scatter/Rect3"), NodePath("MovementTargets/RectGhost/Scatter/Rect4")]

@@ -1,77 +1,57 @@
-extends CharacterBody2D
+extends Area2D
 
-@export var speed := 120.0
-@export var pacman: Node2D
-@export var tilemap: TileMap
-@export var tile_size := 24
+@export var speed = 120
+@export var movement_targets = Resource
+@export var tile_map: TileMap
+@onready var navigation_agent_2d: NavigationAgent2D = $NavigationAgent2D
 
-enum Dir { UP, DOWN, LEFT, RIGHT }
-
-var current_dir: Dir = Dir.LEFT
-var next_dir: Dir = Dir.LEFT
-
-var dir_vectors := {
-	Dir.UP: Vector2.UP,
-	Dir.DOWN: Vector2.DOWN,
-	Dir.LEFT: Vector2.LEFT,
-	Dir.RIGHT: Vector2.RIGHT
-}
+var scatter_nodes: Array[Node2D] = []
+var current_scatter_index := 0
 
 func _ready():
-	global_position = global_position.snapped(Vector2(tile_size, tile_size))
-	var start_delay = randf() * 0.2
-	await get_tree().create_timer(start_delay).timeout
+	for path in movement_targets.scatter_targets:
+		var node = get_node_or_null(path)
+		if node:
+			scatter_nodes.append(node)
+		else:
+			push_error("Ghost Error: Could not find node at path: ", path)
+		#navigation_agent_2d.path_desired_distance = 4.0
+		#navigation_agent_2d.target_desired_distance = 4.0
+		navigation_agent_2d.target_reached.connect(on_position_reached)
+		call_deferred("setup")
 
-func _physics_process(delta):
-	if not pacman or not tilemap:
+func _process(delta):
+	if navigation_agent_2d.is_navigation_finished():
 		return
-	if at_tile_center():
-		if is_blocked(current_dir):
-			choose_direction(pacman.global_position)
-		current_dir = next_dir
-	velocity = dir_vectors[current_dir] * speed
-	move_and_slide()
+	move_ghost(navigation_agent_2d.get_next_path_position(), delta)
 
-func at_tile_center() -> bool:
-	return global_position == global_position.snapped(Vector2(tile_size, tile_size))
-
-func can_move(dir: Dir) -> bool:
-	var next_pos = global_position + dir_vectors[dir] * tile_size
-	var cell = tilemap.local_to_map(next_pos)
-	return tilemap.get_cell_source_id(0, cell) == -1
-
-func choose_direction(target_pos: Vector2):
-	var possible_dirs := []
-	for dir in Dir.values():
-		if dir == opposite(current_dir) and can_move(current_dir):
-			continue
-		if not can_move(dir):
-			continue
-		possible_dirs.append(dir)
-	if possible_dirs.size() == 0:
-		next_dir = opposite(current_dir)
+func move_ghost(next_position: Vector2, delta: float):
+	if next_position == null:
 		return
-	var best_dir = possible_dirs[0]
-	var best_dist = (global_position + dir_vectors[best_dir] * tile_size).distance_to(target_pos)
-	for dir in possible_dirs:
-		var dist = (global_position + dir_vectors[dir] * tile_size).distance_to(target_pos)
-		if dist < best_dist:
-			best_dir = dir
-			best_dist = dist
-	var same_best := []
-	for dir in possible_dirs:
-		var dist = (global_position + dir_vectors[dir] * tile_size).distance_to(target_pos)
-		if abs(dist - best_dist) < 0.01:
-			same_best.append(dir)
-	next_dir = same_best[randi() % same_best.size()]
+	var current_ghost_position = global_position
+	var new_velocity = (next_position - current_ghost_position).normalized() * speed * delta
+	global_position += new_velocity
 
-func opposite(dir: Dir) -> Dir:
-	match dir:
-		Dir.UP: return Dir.DOWN
-		Dir.DOWN: return Dir.UP
-		Dir.LEFT: return Dir.RIGHT
-		Dir.RIGHT: return Dir.LEFT
-	return Dir.UP
+func setup():
+	await get_tree().physics_frame
+	navigation_agent_2d.set_navigation_map(tile_map.get_navigation_map(0))
+	#NavigationServer2D.agent_set_map(navigation_agent_2d.get_rid(), tile_map.get_navigation_map(0))
+	scatter()
 
-func is_blocked(dir: Dir) -> bool:
-	return not can_move(dir)
+func scatter():
+	if scatter_nodes.is_empty():
+		print("No scatter nodes found")
+		return
+	var target_node = scatter_nodes[current_scatter_index]
+	if is_instance_valid(target_node):
+		navigation_agent_2d.target_position = target_node.global_position
+	else:
+		push_error("Ghost Error: Scatter target node is invalid!")
+
+  #navigation_agent_2d.target_position = movement_targets.scatter_targets[current_scatter_index].position
+
+func on_position_reached():
+	if current_scatter_index < 3:
+		current_scatter_index += 1
+	else:
+		current_scatter_index = 0
