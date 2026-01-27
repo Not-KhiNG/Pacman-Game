@@ -2,10 +2,10 @@ extends CharacterBody2D
 
 @export var speed := 120.0
 @export var pacman: Node2D
-@export var tile_size := 24
 @export var tilemap: TileMap
+@export var tile_size := 24
 
-enum Dir {UP, DOWN, LEFT, RIGHT}
+enum Dir { UP, DOWN, LEFT, RIGHT }
 
 var current_dir: Dir = Dir.LEFT
 var next_dir: Dir = Dir.LEFT
@@ -19,6 +19,8 @@ var dir_vectors := {
 
 func _ready():
 	global_position = global_position.snapped(Vector2(tile_size, tile_size))
+	var start_delay = randf() * 0.2
+	await get_tree().create_timer(start_delay).timeout
 
 func _physics_process(delta):
 	if not pacman or not tilemap:
@@ -40,7 +42,6 @@ func can_move(dir: Dir) -> bool:
 
 func choose_direction(target_pos: Vector2):
 	var possible_dirs := []
-
 	for dir in Dir.values():
 		if dir == opposite(current_dir) and can_move(current_dir):
 			continue
