@@ -23,3 +23,7 @@ texture = ExtResource("2_108wt")
 shape = SubResource("CircleShape2D_3btnm")
 
 [node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
+
+[node name="ChaseTimer" type="Timer" parent="."]
+
+[node name="ScatterTimer" type="Timer" parent="."]

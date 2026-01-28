@@ -1390,9 +1390,14 @@ position = Vector2(-11, 1)
 [node name="Ghost" type="Node2D" parent="."]
 position = Vector2(-6, -8)
 
-[node name="Ghost" parent="Ghost" node_paths=PackedStringArray("tile_map") instance=ExtResource("8_344ge")]
+[node name="Ghost" parent="Ghost" node_paths=PackedStringArray("tile_map", "chasing_target") instance=ExtResource("8_344ge")]
 position = Vector2(0, -70)
 tile_map = NodePath("../../TileMap")
+chasing_target = NodePath("../../Player")
+
+[node name="Marker2D" type="Marker2D" parent="Ghost/Ghost"]
+position = Vector2(-0.5, -0.5)
+scale = Vector2(0.5, 0.5)
 
 [node name="MovementTargets" type="Node2D" parent="."]
 
