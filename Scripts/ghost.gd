@@ -1,113 +1,176 @@
 extends Area2D
 class_name Ghost
 
+signal direction_change(direction: String)
+signal run_away_timeout
+
 enum GhostState {
 	SCATTER,
-	CHASE
+	CHASE,
+	RUN_AWAY,
+	EATEN,
+	STARTING_AT_HOME
 }
 
-var current_state: GhostState = GhostState.SCATTER
+@export var speed := 120.0
+@export var frightened_speed := 70.0
+@export var eaten_speed := 240.0
 
-@export var speed: float = 120.0
-@export var movement_targets: Resource   
 @export var tile_map: TileMap
-@export var chasing_target: Node2D         
+@export var chasing_target: Node2D
+@export var scatter_targets: Array[Node2D]
+@export var at_home_targets: Array[Node2D]
+@export var start_at_home := false
+@export var scatter_time := 8.0
+@export var run_away_time := 8.0
+@export var color: Color
 
 @onready var navigation_agent: NavigationAgent2D = $NavigationAgent2D
-@onready var chase_timer: Timer = $ChaseTimer
 @onready var scatter_timer: Timer = $ScatterTimer
+@onready var run_away_timer: Timer = $RunAwayTimer
+@onready var chase_update_timer: Timer = $UpdateChasingTargetPositionTimer
+@onready var at_home_timer: Timer = $AtHomeTimer
 
-var scatter_nodes: Array[Node2D] = []
-var current_scatter_index: int = 0
+@onready var body_sprite: BodySprite = $BodySprite
+@onready var eye_sprite: EyeSprite = $EyeSprite
 
-func _ready() -> void:
-	_load_scatter_nodes()
-	navigation_agent.path_desired_distance = 4.0
-	navigation_agent.target_desired_distance = 4.0
+var current_state := GhostState.SCATTER
+var current_scatter_index := 0
+var current_home_index := 0
+var direction: String
+var is_blinking := false
+
+func _ready():
+	navigation_agent.path_desired_distance = 4
+	navigation_agent.target_desired_distance = 4
 	navigation_agent.target_reached.connect(_on_target_reached)
-	chase_timer.timeout.connect(_update_chase_target)
+
+	scatter_timer.wait_time = scatter_time
+	run_away_timer.wait_time = run_away_time
+
 	scatter_timer.timeout.connect(start_chase)
-	call_deferred("_setup_navigation")
+	run_away_timer.timeout.connect(_on_run_away_timeout)
+	at_home_timer.timeout.connect(_scatter)
 
-func _setup_navigation() -> void:
-	await get_tree().physics_frame
+	call_deferred("setup")
 
-	var nav_map = tile_map.get_navigation_map(0)
-	navigation_agent.set_navigation_map(nav_map)
-	start_scatter()
+func setup():
+	position = at_home_targets[0].position
+	navigation_agent.set_navigation_map(tile_map.get_navigation_map(0))
+	NavigationServer2D.agent_set_map(navigation_agent.get_rid(), tile_map.get_navigation_map(0))
 
-func _process(delta: float) -> void:
-	if navigation_agent.is_navigation_finished():
-		return
+	body_sprite.normal()
+	eye_sprite.hide_eyes()
 
-	var next_pos: Vector2 = navigation_agent.get_next_path_position()
-	var velocity: Vector2 = (next_pos - global_position).normalized() * speed * delta
+	if start_at_home:
+		start_home()
+	else:
+		_scatter()
+
+func _process(delta):
+	if current_state == GhostState.RUN_AWAY \
+	and !is_blinking \
+	and run_away_timer.time_left < run_away_timer.wait_time / 2 :
+		is_blinking = true
+		body_sprite.start_blinking()
+
+	var next_pos = navigation_agent.get_next_path_position()
+	var velocity = (next_pos - global_position).normalized() * get_speed() * delta
+	update_direction(velocity)
 	global_position += velocity
 
-func start_scatter() -> void:
-	current_state = GhostState.SCATTER
-	current_scatter_index = 0
+func get_speed():
+	match current_state:
+		GhostState.RUN_AWAY:
+			return frightened_speed
+		GhostState.EATEN:
+			return eaten_speed
+		_:
+			return speed
 
-	chase_timer.stop()
-	scatter_timer.start() 
-
-	_set_scatter_target()
-
-func _set_scatter_target() -> void:
-	if scatter_nodes.is_empty():
-		push_error("Ghost has no scatter nodes!")
-		return
-
-	var target_node := scatter_nodes[current_scatter_index]
-	if is_instance_valid(target_node):
-		navigation_agent.target_position = target_node.global_position
+func update_direction(v: Vector2):
+	var new_dir := direction
+	if abs(v.x) > abs(v.y):
+		new_dir = "right" if v.x > 0 else "left"
 	else:
-		push_error("Scatter target is invalid")
+		new_dir = "down" if v.y > 0 else "up"
 
-func _on_scatter_target_reached() -> void:
-	current_scatter_index = (current_scatter_index + 1) % scatter_nodes.size()
-	_set_scatter_target()
+	if new_dir != direction:
+		direction = new_dir
+		direction_change.emit(direction)
 
-func start_chase() -> void:
-	if chasing_target == null:
-		push_warning("No chasing target set for ghost")
+# -----------------------------
+# PAC-MAN EATS GHOST
+# -----------------------------
+func get_eaten():
+	if current_state == GhostState.EATEN:
 		return
 
+	current_state = GhostState.EATEN
+	body_sprite.visible = false
+	eye_sprite.visible = true
+	navigation_agent.target_position = at_home_targets[current_home_index].position
+
+# -----------------------------
+# MOVEMENT STATES
+# -----------------------------
+func _scatter():
+	current_state = GhostState.SCATTER
+	is_blinking = false
+	scatter_timer.start()
+	body_sprite.normal()
+	eye_sprite.hide_eyes()
+	navigation_agent.target_position = scatter_targets[current_scatter_index].position
+
+func start_chase():
 	current_state = GhostState.CHASE
-	scatter_timer.stop()
-	chase_timer.start()
+	is_blinking = false
+	chase_update_timer.start()
+	body_sprite.normal()
+	eye_sprite.hide_eyes()
+	navigation_agent.target_position = chasing_target.position
 
-	_update_chase_target()
+func run_away_from_pacman():
+	if current_state != GhostState.RUN_AWAY:
+		current_state = GhostState.RUN_AWAY
+		is_blinking = false
+		chase_update_timer.stop()
+		scatter_timer.stop()
+		body_sprite.run_away()
+		eye_sprite.hide_eyes()
+		run_away_timer.start()
+	navigation_agent.target_position = tile_map.get_random_empty_cell_position()
 
-func _update_chase_target() -> void:
-	if current_state != GhostState.CHASE:
-		return
-	if chasing_target == null:
-		return
+func _on_run_away_timeout():
+	current_state = GhostState.CHASE
+	is_blinking = false
+	body_sprite.normal()
+	eye_sprite.hide_eyes()
+	run_away_timeout.emit()
+	start_chase()
 
-	navigation_agent.target_position = chasing_target.global_position
+func start_home():
+	current_state = GhostState.STARTING_AT_HOME
+	at_home_timer.start()
+	body_sprite.visible = true
+	eye_sprite.hide_eyes()
+	navigation_agent.target_position = at_home_targets[current_home_index].position
 
-func _on_chase_target_reached() -> void:
-	print("Pac-Man caught!")
-	# ToDo kill Pac-Man or switch state
-
-func _on_target_reached() -> void:
+func _on_target_reached():
 	match current_state:
 		GhostState.SCATTER:
-			_on_scatter_target_reached()
-		GhostState.CHASE:
-			_on_chase_target_reached()
+			current_scatter_index = (current_scatter_index + 1) % scatter_targets.size()
+			navigation_agent.target_position = scatter_targets[current_scatter_index].position
 
-func _load_scatter_nodes() -> void:
-	scatter_nodes.clear()
+		GhostState.RUN_AWAY:
+			run_away_from_pacman()
 
-	if movement_targets == null:
-		push_error("MovementTargets resource not assigned")
-		return
+		GhostState.EATEN:
+			# Reached home, restore ghost
+			body_sprite.visible = true
+			eye_sprite.hide_eyes()
+			start_home()
 
-	for path: NodePath in movement_targets.scatter_targets:
-		var node := get_node_or_null(path)
-		if node and node is Node2D:
-			scatter_nodes.append(node)
-		else:
-			push_error("Invalid scatter NodePath: %s" % path)
+		GhostState.STARTING_AT_HOME:
+			current_home_index = (current_home_index + 1) % at_home_targets.size()
+			_scatter()

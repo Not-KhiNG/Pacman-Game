@@ -1,15 +1,13 @@
 extends Area2D
 
 class_name Pellet
+@onready var audio_stream_player_2d: AudioStreamPlayer2D = $AudioStreamPlayer2D
 
-signal  pellet_eaten()
+signal  pellet_eaten(should_allow_eating_ghosts: bool)
 @export var should_allow_eating_ghosts = false
 
 func _on_body_entered(body: Node2D) -> void:
 	if body is Player:
-		pellet_eaten.emit()
+		audio_stream_player_2d.play()
+		pellet_eaten.emit(should_allow_eating_ghosts)
 		queue_free()
-
-# TODO ADD INTERACTION WITH PLAYER CLASS IS ENABLED EATING GHOST
-		if should_allow_eating_ghosts:
-			pass

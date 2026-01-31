@@ -3,7 +3,6 @@
 [ext_resource type="Script" uid="uid://byypj85gh0cio" path="res://Scripts/ghost.gd" id="1_108wt"]
 [ext_resource type="Texture2D" uid="uid://bwh3pnp6rcycn" path="res://Assets/Ghost/Ghost_Body_01.png" id="1_e3r4w"]
 [ext_resource type="Texture2D" uid="uid://gcljnvys5tll" path="res://Assets/Ghost/Ghost_Eyes_Down.png" id="2_108wt"]
-[ext_resource type="Script" uid="uid://dtbusddj7l2if" path="res://Scripts/ghost_body_sprite.gd" id="3_ax0xk"]
 [ext_resource type="Texture2D" uid="uid://k486j4lctjb7" path="res://Assets/Ghost/Ghost_Body_02.png" id="6_thbej"]
 [ext_resource type="Script" uid="uid://t73hdynpy6hc" path="res://Scripts/ghost_eye_sprite.gd" id="6_uta0k"]
 [ext_resource type="Texture2D" uid="uid://dcgg14tac7mou" path="res://Assets/Ghost/Ghost_Eyes_Up.png" id="7_xoekh"]
@@ -13,6 +12,29 @@
 [ext_resource type="Texture2D" uid="uid://blq70pt5we2b8" path="res://Assets/Ghost/Ghost_Vulnerable_Blue_02.png" id="11_prwv0"]
 [ext_resource type="Texture2D" uid="uid://cvto5sswde2ik" path="res://Assets/Ghost/Ghost_Vulnerable_White_01.png" id="12_ax0xk"]
 [ext_resource type="Texture2D" uid="uid://d0uu218xbjg0r" path="res://Assets/Ghost/Ghost_Vulnerable_White_02.png" id="12_prwv0"]
+
+[sub_resource type="GDScript" id="GDScript_prwv0"]
+script/source = "extends Sprite2D
+
+class_name BodySprite
+
+@onready var animation_player: AnimationPlayer = $\"../AnimationPlayer\"
+@onready var ghost := get_parent() as Ghost
+
+func _ready():
+	move()
+
+func move():
+	self_modulate = ghost.color
+	animation_player.play(\"moving\")
+
+func run_away():
+	self_modulate = Color.WHITE
+	animation_player.play(\"running_away\")
+
+func start_blinking():
+	animation_player.play(\"blinking\")
+"
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_3btnm"]
 radius = 6.0
@@ -94,11 +116,15 @@ _data = {
 [node name="Ghost" type="Area2D"]
 scale = Vector2(2, 2)
 script = ExtResource("1_108wt")
+start_at_home = null
+scatter_time = null
+run_away_time = null
+color = null
 
 [node name="BodySprite" type="Sprite2D" parent="."]
 position = Vector2(0, 1.5)
 texture = ExtResource("1_e3r4w")
-script = ExtResource("3_ax0xk")
+script = SubResource("GDScript_prwv0")
 
 [node name="EyeSprite" type="Sprite2D" parent="."]
 texture = ExtResource("2_108wt")
