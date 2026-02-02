@@ -1,14 +1,25 @@
-[gd_scene load_steps=28 format=3 uid="uid://dshfyw0tpqaud"]
+[gd_scene load_steps=39 format=3 uid="uid://dshfyw0tpqaud"]
 
 [ext_resource type="Texture2D" uid="uid://di7lt8ehvdxdh" path="res://Assets/Walls/wall_atlas.png" id="1_jjgbg"]
 [ext_resource type="PackedScene" uid="uid://bb0gcm37hx50e" path="res://Scenes/player.tscn" id="2_bo1nx"]
 [ext_resource type="Script" uid="uid://de6keylynjq4n" path="res://Scripts/tile_map.gd" id="2_ynf5e"]
-[ext_resource type="Script" uid="uid://cjui7xrvoigmj" path="res://Scripts/pellets_minade.gd" id="3_6bp64"]
+[ext_resource type="Script" uid="uid://cjui7xrvoigmj" path="res://Scripts/pellets_manager.gd" id="3_6bp64"]
 [ext_resource type="PackedScene" uid="uid://cx86etnhs2er0" path="res://Scenes/pellet.tscn" id="3_jjvhh"]
 [ext_resource type="PackedScene" uid="uid://cegmwlfpfj5iu" path="res://Scenes/large_pellet.tscn" id="4_kry3j"]
 [ext_resource type="PackedScene" uid="uid://k06wbygnxj8d" path="res://Scenes/connector.tscn" id="5_kry3j"]
 [ext_resource type="PackedScene" uid="uid://cceyp6ix7geg6" path="res://Scenes/u_i.tscn" id="7_344ge"]
 [ext_resource type="PackedScene" uid="uid://blbpqf30xn3ja" path="res://Scenes/ghost.tscn" id="8_344ge"]
+[ext_resource type="Script" uid="uid://c7bshp03pdkfs" path="res://Scripts/ghosts.gd" id="9_h1bgf"]
+[ext_resource type="Resource" uid="uid://cyihyq7rubjq3" path="res://Resource/rect_movement_targets.tres" id="11_b3802"]
+[ext_resource type="Texture2D" uid="uid://bwh3pnp6rcycn" path="res://Assets/Ghost/Ghost_Body_01.png" id="12_fevyy"]
+[ext_resource type="Script" uid="uid://dvxa5lr8wcgyb" path="res://Scripts/points_manager.gd" id="13_hibaj"]
+[ext_resource type="Resource" uid="uid://c04iv55qv642e" path="res://Resource/yellow_movement_targets.tres" id="13_pdsj5"]
+[ext_resource type="Resource" uid="uid://b5hpj7ftlvgls" path="res://Resource/pink_movement_targets.tres" id="14_ee4r6"]
+[ext_resource type="AudioStream" uid="uid://bu756i3lh25h3" path="res://Assets/Sounds/pacman_chomp.wav" id="14_pdsj5"]
+[ext_resource type="AudioStream" uid="uid://100ohtpyo02o" path="res://Assets/Sounds/pacman_eatghost.wav" id="15_ee4r6"]
+[ext_resource type="Resource" uid="uid://5ctqny4o7hcs" path="res://Resource/blue_movement_targets.tres" id="15_gt3je"]
+[ext_resource type="AudioStream" uid="uid://c4b0pvuyylv4a" path="res://Assets/Sounds/pacman_power_pellet.wav" id="16_gt3je"]
+[ext_resource type="AudioStream" uid="uid://bnxugtt2eriq0" path="res://Assets/Sounds/pacman_death.wav" id="17_3pmx8"]
 
 [sub_resource type="TileMapPattern" id="TileMapPattern_bo1nx"]
 tile_data = PackedInt32Array(0, 458752, 1, 65536, 0, 3, 131072, 0, 3, 196608, 0, 3, 262144, 65536, 2, 1, 196608, 3, 262145, 131072, 3, 2, 196608, 3, 262146, 131072, 3, 3, 131072, 2, 262147, 131072, 3, 4, 131072, 2, 262148, 131072, 3, 5, 196608, 3, 262149, 131072, 3, 6, 196608, 3, 262150, 131072, 3, 7, 393216, 1, 65543, 65536, 3, 131079, 65536, 3, 196615, 65536, 3, 262151, 0, 2)
@@ -347,13 +358,20 @@ zoom = Vector2(0.814, 0.8)
 
 [node name="ui" parent="." instance=ExtResource("7_344ge")]
 
-[node name="Player" parent="." instance=ExtResource("2_bo1nx")]
+[node name="Player" parent="." node_paths=PackedStringArray("start_position", "pacman_death_sound_player", "pellets_manager", "ui") instance=ExtResource("2_bo1nx")]
 position = Vector2(-11, 207)
 scale = Vector2(3.42, 3.42)
+start_position = NodePath("../MovementTargets/Player/StartingPoint")
+pacman_death_sound_player = NodePath("../SoundManager/PacmanDeathSound")
+pellets_manager = NodePath("../Pellets")
+lifes = 3
+ui = NodePath("../ui")
 
-[node name="Pellets" type="Node" parent="." node_paths=PackedStringArray("ghost_array")]
+[node name="Pellets" type="Node" parent="." node_paths=PackedStringArray("chomp_sound_player", "power_pellet_sound_player", "ghost_array")]
 script = ExtResource("3_6bp64")
-ghost_array = [NodePath("../Ghosts/RedGhost")]
+chomp_sound_player = NodePath("../SoundManager/ChompSoundPlayer")
+power_pellet_sound_player = NodePath("../SoundManager/PowerPelletSound")
+ghost_array = [NodePath("../Ghosts/RedGhost"), NodePath("../Ghosts/YellowGhost"), NodePath("../Ghosts/PinkGhost"), NodePath("../Ghosts/BlueGhost")]
 
 [node name="Pellet" parent="Pellets" instance=ExtResource("3_jjvhh")]
 position = Vector2(-185, -10)
@@ -1409,35 +1427,182 @@ position = Vector2(-11, 1)
 [node name="Scatter" type="Node" parent="MovementTargets/RedGhost"]
 
 [node name="Red1" type="Marker2D" parent="MovementTargets/RedGhost/Scatter"]
-position = Vector2(-307, -321)
+position = Vector2(-305, -317)
 
 [node name="Red2" type="Marker2D" parent="MovementTargets/RedGhost/Scatter"]
-position = Vector2(292, -320)
+position = Vector2(-185, -320)
 
 [node name="Red3" type="Marker2D" parent="MovementTargets/RedGhost/Scatter"]
-position = Vector2(293, 350)
+position = Vector2(-184, -225)
 
 [node name="Red4" type="Marker2D" parent="MovementTargets/RedGhost/Scatter"]
-position = Vector2(-304, 347)
+position = Vector2(-307, -221)
+
+[node name="Home" type="Node" parent="MovementTargets/RedGhost"]
+
+[node name="Buttom" type="Marker2D" parent="MovementTargets/RedGhost/Home"]
+position = Vector2(-67, 21)
+
+[node name="Top" type="Marker2D" parent="MovementTargets/RedGhost/Home"]
+position = Vector2(-69, -38)
+
+[node name="StartingPoint" type="Marker2D" parent="MovementTargets/RedGhost"]
+position = Vector2(-6, -79)
+
+[node name="YellowGhost" type="Node" parent="MovementTargets"]
+
+[node name="Scatter" type="Node" parent="MovementTargets/YellowGhost"]
+
+[node name="Yellow1" type="Marker2D" parent="MovementTargets/YellowGhost/Scatter"]
+position = Vector2(177, -321)
+
+[node name="Yellow2" type="Marker2D" parent="MovementTargets/YellowGhost/Scatter"]
+position = Vector2(294, -323)
+
+[node name="Yellow3" type="Marker2D" parent="MovementTargets/YellowGhost/Scatter"]
+position = Vector2(178, -224)
+
+[node name="Yellow4" type="Marker2D" parent="MovementTargets/YellowGhost/Scatter"]
+position = Vector2(293, -225)
+
+[node name="Home" type="Node" parent="MovementTargets/YellowGhost"]
+
+[node name="Buttom" type="Marker2D" parent="MovementTargets/YellowGhost/Home"]
+position = Vector2(0, 19)
+
+[node name="Top" type="Marker2D" parent="MovementTargets/YellowGhost/Home"]
+position = Vector2(0, -35)
+
+[node name="StartingPoint" type="Marker2D" parent="MovementTargets/YellowGhost"]
+position = Vector2(-1, -7)
+
+[node name="PinkGhost" type="Node" parent="MovementTargets"]
+
+[node name="Scatter" type="Node" parent="MovementTargets/PinkGhost"]
+
+[node name="Pink1" type="Marker2D" parent="MovementTargets/PinkGhost/Scatter"]
+position = Vector2(171, 135)
+
+[node name="Pink2" type="Marker2D" parent="MovementTargets/PinkGhost/Scatter"]
+position = Vector2(297, 135)
+
+[node name="Pink3" type="Marker2D" parent="MovementTargets/PinkGhost/Scatter"]
+position = Vector2(246, 276)
+
+[node name="Pink4" type="Marker2D" parent="MovementTargets/PinkGhost/Scatter"]
+position = Vector2(175, 277)
+
+[node name="Home" type="Node" parent="MovementTargets/PinkGhost"]
+
+[node name="Buttom" type="Marker2D" parent="MovementTargets/PinkGhost/Home"]
+position = Vector2(45, 20)
+
+[node name="Top" type="Marker2D" parent="MovementTargets/PinkGhost/Home"]
+position = Vector2(45, -31)
+
+[node name="StartingPoint" type="Marker2D" parent="MovementTargets/PinkGhost"]
+position = Vector2(39, -6)
+
+[node name="BlueGhost" type="Node" parent="MovementTargets"]
+
+[node name="Scatter" type="Node" parent="MovementTargets/BlueGhost"]
+
+[node name="Blue1" type="Marker2D" parent="MovementTargets/BlueGhost/Scatter"]
+position = Vector2(-305, 136)
+
+[node name="Blue2" type="Marker2D" parent="MovementTargets/BlueGhost/Scatter"]
+position = Vector2(-186, 134)
+
+[node name="Blue3" type="Marker2D" parent="MovementTargets/BlueGhost/Scatter"]
+position = Vector2(-183, 282)
+
+[node name="Blue4" type="Marker2D" parent="MovementTargets/BlueGhost/Scatter"]
+position = Vector2(-258, 283)
+
+[node name="Home" type="Node" parent="MovementTargets/BlueGhost"]
+
+[node name="Buttom" type="Marker2D" parent="MovementTargets/BlueGhost/Home"]
+position = Vector2(-49, 20)
+
+[node name="Top" type="Marker2D" parent="MovementTargets/BlueGhost/Home"]
+position = Vector2(-50, -34)
+
+[node name="StartingPoint" type="Marker2D" parent="MovementTargets/BlueGhost"]
+position = Vector2(-50, 0)
+
+[node name="Player" type="Node" parent="MovementTargets"]
+
+[node name="StartingPoint" type="Marker2D" parent="MovementTargets/Player"]
+position = Vector2(3, 211)
 
 [node name="Ghosts" type="Node2D" parent="."]
 position = Vector2(-6, -8)
+script = ExtResource("9_h1bgf")
 
-[node name="RedGhost" parent="Ghosts" node_paths=PackedStringArray("tile_map", "chasing_target", "scatter_targets", "at_home_targets") instance=ExtResource("8_344ge")]
+[node name="RedGhost" parent="Ghosts" node_paths=PackedStringArray("tile_map", "chasing_target", "points_manager", "starting_position", "ghost_eaten_sound_player") instance=ExtResource("8_344ge")]
 position = Vector2(0, -70)
+movement_targets = ExtResource("11_b3802")
 tile_map = NodePath("../../TileMap")
+color = Color(1, 0, 0, 1)
 chasing_target = NodePath("../../Player")
-scatter_targets = [NodePath("../../MovementTargets/RedGhost/Scatter/Red1"), NodePath("../../MovementTargets/RedGhost/Scatter/Red2"), NodePath("../../MovementTargets/RedGhost/Scatter/Red3"), NodePath("../../MovementTargets/RedGhost/Scatter/Red4")]
-at_home_targets = [NodePath("Marker2D")]
-color = Color(0.9490196, 0, 0, 1)
+points_manager = NodePath("../../PointsManager")
+is_starting_at_home = true
+starting_position = NodePath("../../MovementTargets/RedGhost/StartingPoint")
+ghost_eaten_sound_player = NodePath("../../SoundManager/EatGhostSound")
+starting_texture = ExtResource("12_fevyy")
 
-[node name="Marker2D" type="Marker2D" parent="Ghosts/RedGhost"]
-position = Vector2(-0.5, -0.5)
-scale = Vector2(0.5, 0.5)
+[node name="YellowGhost" parent="Ghosts" node_paths=PackedStringArray("tile_map", "chasing_target", "points_manager", "starting_position", "ghost_eaten_sound_player") instance=ExtResource("8_344ge")]
+movement_targets = ExtResource("13_pdsj5")
+tile_map = NodePath("../../TileMap")
+color = Color(1, 1, 0, 1)
+chasing_target = NodePath("../../Player")
+points_manager = NodePath("../../PointsManager")
+starting_position = NodePath("../../MovementTargets/YellowGhost/StartingPoint")
+ghost_eaten_sound_player = NodePath("../../SoundManager/EatGhostSound")
+starting_texture = ExtResource("12_fevyy")
+
+[node name="PinkGhost" parent="Ghosts" node_paths=PackedStringArray("tile_map", "chasing_target", "points_manager", "starting_position", "ghost_eaten_sound_player") instance=ExtResource("8_344ge")]
+movement_targets = ExtResource("14_ee4r6")
+tile_map = NodePath("../../TileMap")
+color = Color(1, 0.7529412, 0.79607844, 1)
+chasing_target = NodePath("../../Player")
+points_manager = NodePath("../../PointsManager")
+starting_position = NodePath("../../MovementTargets/PinkGhost/StartingPoint")
+ghost_eaten_sound_player = NodePath("../../SoundManager/EatGhostSound")
+starting_texture = ExtResource("12_fevyy")
+
+[node name="BlueGhost" parent="Ghosts" node_paths=PackedStringArray("tile_map", "chasing_target", "points_manager", "starting_position", "ghost_eaten_sound_player") instance=ExtResource("8_344ge")]
+position = Vector2(-44, 5)
+movement_targets = ExtResource("15_gt3je")
+tile_map = NodePath("../../TileMap")
+color = Color(0, 0, 1, 1)
+chasing_target = NodePath("../../Player")
+points_manager = NodePath("../../PointsManager")
+starting_position = NodePath("../../MovementTargets/BlueGhost/StartingPoint")
+ghost_eaten_sound_player = NodePath("../../SoundManager/EatGhostSound")
+starting_texture = ExtResource("12_fevyy")
 
 [node name="NavigationRegion2D" type="NavigationRegion2D" parent="."]
 position = Vector2(-315, -336)
 navigation_polygon = SubResource("NavigationPolygon_jkdf5")
+
+[node name="PointsManager" type="Node" parent="." node_paths=PackedStringArray("ui")]
+script = ExtResource("13_hibaj")
+ui = NodePath("../ui")
+
+[node name="SoundManager" type="Node" parent="."]
+
+[node name="ChompSoundPlayer" type="AudioStreamPlayer2D" parent="SoundManager"]
+stream = ExtResource("14_pdsj5")
+
+[node name="EatGhostSound" type="AudioStreamPlayer2D" parent="SoundManager"]
+stream = ExtResource("15_ee4r6")
+
+[node name="PowerPelletSound" type="AudioStreamPlayer2D" parent="SoundManager"]
+stream = ExtResource("16_gt3je")
+
+[node name="PacmanDeathSound" type="AudioStreamPlayer2D" parent="SoundManager"]
+stream = ExtResource("17_3pmx8")
 
 [connection signal="body_entered" from="Pellets/LargePellet" to="Pellets/LargePellet" method="_on_body_entered"]
 [connection signal="body_entered" from="Pellets/LargePellet2" to="Pellets/LargePellet2" method="_on_body_entered"]

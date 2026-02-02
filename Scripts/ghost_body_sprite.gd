@@ -1,27 +1,20 @@
 extends Sprite2D
-
 class_name BodySprite
 
-@onready var animation_player: AnimationPlayer = $"../AnimationPlayer"
-@onready var ghost := get_parent() as Ghost
+@onready var animation_player = $"../AnimationPlayer"
+var starting_texture: Texture2D
 
 func _ready():
-	normal()
+	move()
 
-func normal():
-	self_modulate = ghost.color
-	animation_player.play("default")
-
+func move():
+	texture = starting_texture
+	self.modulate = (get_parent() as Ghost).color
+	animation_player.play("moving")
+	
 func run_away():
-	self_modulate = Color.BLUE
-	animation_player.play("run_away")
+	self.modulate = Color.BLUE
+	animation_player.play("running_away")
 
 func start_blinking():
-	var blink_anim = AnimationPlayer
-	animation_player.play("frightened_blink")
-
-func hide_body():
-	hide()
-
-func show_body():
-	show()
+	animation_player.play("blinking")

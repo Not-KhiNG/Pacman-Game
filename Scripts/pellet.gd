@@ -8,6 +8,5 @@ signal  pellet_eaten(should_allow_eating_ghosts: bool)
 
 func _on_body_entered(body: Node2D) -> void:
 	if body is Player:
-		audio_stream_player_2d.play()
 		pellet_eaten.emit(should_allow_eating_ghosts)
 		queue_free()

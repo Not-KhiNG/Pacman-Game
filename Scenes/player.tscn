@@ -1,10 +1,21 @@
-[gd_scene load_steps=10 format=3 uid="uid://bb0gcm37hx50e"]
+[gd_scene load_steps=22 format=3 uid="uid://bb0gcm37hx50e"]
 
 [ext_resource type="Script" uid="uid://c40j0qq7813i4" path="res://Scripts/player.gd" id="1_6t5aa"]
 [ext_resource type="Texture2D" uid="uid://h71ud3s8c8n3" path="res://Assets/Pacman/Pacman_02.png" id="1_cvnsp"]
 [ext_resource type="Texture2D" uid="uid://c6bux70f56d6a" path="res://Assets/Pacman/direction_pointer.png" id="2_6t5aa"]
 [ext_resource type="Texture2D" uid="uid://bh35fl0wqe63" path="res://Assets/Pacman/Pacman_01.png" id="4_fkybt"]
 [ext_resource type="Texture2D" uid="uid://dn5n35q1uw6no" path="res://Assets/Pacman/Pacman_03.png" id="5_x3wgy"]
+[ext_resource type="Texture2D" uid="uid://bbgj23q7gam4f" path="res://Assets/Pacman/Pacman_Death_01.png" id="6_fd4e3"]
+[ext_resource type="Texture2D" uid="uid://vxf8adm234y3" path="res://Assets/Pacman/Pacman_Death_02.png" id="7_qqcod"]
+[ext_resource type="Texture2D" uid="uid://coy4joj7785kn" path="res://Assets/Pacman/Pacman_Death_03.png" id="8_igrcy"]
+[ext_resource type="Texture2D" uid="uid://dc32pr4l0exr7" path="res://Assets/Pacman/Pacman_Death_04.png" id="9_fs7ks"]
+[ext_resource type="Texture2D" uid="uid://bghyra350hdga" path="res://Assets/Pacman/Pacman_Death_05.png" id="10_l6n3p"]
+[ext_resource type="Texture2D" uid="uid://bs55ta550rsj3" path="res://Assets/Pacman/Pacman_Death_06.png" id="11_olqyp"]
+[ext_resource type="Texture2D" uid="uid://c3dh7n3hysm7o" path="res://Assets/Pacman/Pacman_Death_07.png" id="12_wpjfl"]
+[ext_resource type="Texture2D" uid="uid://d30tk7uppyp8r" path="res://Assets/Pacman/Pacman_Death_08.png" id="13_bi64h"]
+[ext_resource type="Texture2D" uid="uid://bm2447s8rp6kl" path="res://Assets/Pacman/Pacman_Death_09.png" id="14_2ijsl"]
+[ext_resource type="Texture2D" uid="uid://malqtxrid8h4" path="res://Assets/Pacman/Pacman_Death_10.png" id="15_p1odr"]
+[ext_resource type="Texture2D" uid="uid://2xj6ip5thdc6" path="res://Assets/Pacman/Pacman_Death_11.png" id="16_0gysh"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_fkybt"]
 size = Vector2(8, 7.5)
@@ -41,9 +52,26 @@ tracks/0/keys = {
 "values": [ExtResource("4_fkybt"), ExtResource("1_cvnsp"), ExtResource("5_x3wgy")]
 }
 
+[sub_resource type="Animation" id="Animation_vfarp"]
+resource_name = "death"
+length = 2.5
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:texture")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25, 2.5),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [ExtResource("6_fd4e3"), ExtResource("7_qqcod"), ExtResource("8_igrcy"), ExtResource("9_fs7ks"), ExtResource("10_l6n3p"), ExtResource("11_olqyp"), ExtResource("12_wpjfl"), ExtResource("13_bi64h"), ExtResource("14_2ijsl"), ExtResource("15_p1odr"), ExtResource("16_0gysh")]
+}
+
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_f1ek2"]
 _data = {
 &"RESET": SubResource("Animation_8erm5"),
+&"death": SubResource("Animation_vfarp"),
 &"default": SubResource("Animation_3smsa")
 }
 
@@ -57,7 +85,7 @@ scale = Vector2(-1, -1)
 texture = ExtResource("1_cvnsp")
 
 [node name="DirectionPointer" type="Sprite2D" parent="."]
-position = Vector2(-6, 0)
+position = Vector2(-9, 0)
 scale = Vector2(0.2, 0.2)
 texture = ExtResource("2_6t5aa")
 
@@ -69,3 +97,5 @@ shape = SubResource("RectangleShape2D_fkybt")
 libraries = {
 &"": SubResource("AnimationLibrary_f1ek2")
 }
+
+[connection signal="animation_finished" from="AnimationPlayer" to="." method="_on_animation_player_animation_finished"]

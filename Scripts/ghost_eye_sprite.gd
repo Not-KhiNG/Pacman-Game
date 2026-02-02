@@ -7,7 +7,7 @@ class_name EyeSprite
 @export var down: Texture2D
 @export var left: Texture2D
 @export var right: Texture2D
-@export_group ("")
+@export_group("")
 
 @onready var direction_lookup_table = {
 	"down": down,
@@ -23,7 +23,7 @@ func on_direction_change(direction: String):
 	texture = direction_lookup_table[direction]
 	
 func hide_eyes():
-	visible = true
+	hide()
 	
 func show_eyes():
-	visible = false
+	show()

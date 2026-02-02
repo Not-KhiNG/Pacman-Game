@@ -4,5 +4,5 @@
 
 [resource]
 script = ExtResource("1_giea1")
-scatter_targets = Array[NodePath]([NodePath("../../MovementTargets/RedGhost/Scatter/Red1"), NodePath("../../MovementTargets/RedGhost/Scatter/Red2"), NodePath("../../MovementTargets/RedGhost/Scatter/Red3"), NodePath("../../MovementTargets/RedGhost/Scatter/Red4")])
-at_home_targets = Array[NodePath]([NodePath("Marker2D")])
+scatter_targets = Array[NodePath]([NodePath("MovementTargets/RedGhost/Scatter/Red1"), NodePath("MovementTargets/RedGhost/Scatter/Red2"), NodePath("MovementTargets/RedGhost/Scatter/Red3"), NodePath("MovementTargets/RedGhost/Scatter/Red4")])
+at_home_targets = Array[NodePath]([NodePath("MovementTargets/RedGhost/Home/Buttom"), NodePath("MovementTargets/RedGhost/Home/Top")])
