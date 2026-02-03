@@ -27,20 +27,26 @@ func _ready():
 		ghost.run_away_timeout.connect(on_ghost_run_away_timeout)
 
 func on_pellet_eaten(should_allow_eating_ghosts: bool):
-	
-	if !chomp_sound_player.playing:
-		chomp_sound_player.play()
 	pellets_eaten += 1
-	
+
 	if should_allow_eating_ghosts:
-		power_pellet_sound_player.play()
+		points_manager.add_power_pellet_points()
+	else:
+		points_manager.add_pellet_points()
+
+	if chomp_sound_player:
+		chomp_sound_player.play()
+
+	if should_allow_eating_ghosts:
+		if power_pellet_sound_player:
+			power_pellet_sound_player.play()
 		for ghost in ghost_array:
 			if ghost.current_state != ghost.GhostState.STARTING_AT_HOME:
 				ghost.run_away_from_pacman()
-	
+
 	if pellets_eaten == total_pellets_count:
 		ui.game_won()
-		
+
 func on_ghost_run_away_timeout():
 	eaten_ghost_counter += 1
 	if eaten_ghost_counter == ghost_array.size():

@@ -16,7 +16,7 @@ signal run_away_timeout
 var current_scatter_index = 0
 var current_at_home_index = 0
 var direction = null
-var current_state: GhostState
+var current_state: GhostState = GhostState.SCATTER
 var is_blinking = false
 
 @export var scatter_wait_time = 8
@@ -227,6 +227,7 @@ func get_eaten():
 	run_away_timer.stop()
 	run_away_timeout.emit()
 	current_state = GhostState.EATEN
+	await  points_manager.pause_on_ghost_eaten()
 	navigation_agent_2d.target_position = movement_targets.at_home_targets[0].position
 	
 	

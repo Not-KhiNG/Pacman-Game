@@ -1,23 +1,28 @@
 extends Node
-
 class_name PointsManager
 
-#@onready var ui = get_node("../UI") as UI
-#@onready var ui: UI = $"."
-@export var ui: UI
+@onready var ui: UI = get_tree().get_first_node_in_group("ui")
 
-const BASE_POINTS_FOR_GHOST_VALUE = 200 
+const PELLET_POINTS = 10
+const POWER_PELLET_POINTS = 50
+const BASE_POINTS_FOR_GHOST_VALUE = 200
 
-var points_for_ghost_eaten = BASE_POINTS_FOR_GHOST_VALUE
 var points = 0
+var points_for_ghost_eaten = BASE_POINTS_FOR_GHOST_VALUE
+
+func add_pellet_points():
+	points += PELLET_POINTS
+	if ui:
+		ui.set_score(points)
+
+func add_power_pellet_points():
+	points += POWER_PELLET_POINTS
+	if ui:
+		ui.set_score(points)
 
 func pause_on_ghost_eaten():
 	points += points_for_ghost_eaten
-	get_tree().paused = true
-	await get_tree().create_timer(1.0).timeout
-	get_tree().paused = false
+	if ui:
+		ui.set_score(points)
+
 	points_for_ghost_eaten += BASE_POINTS_FOR_GHOST_VALUE
-	ui.set_score(points)
-	
-func reset_points_for_ghosts():
-	points_for_ghost_eaten = BASE_POINTS_FOR_GHOST_VALUE
