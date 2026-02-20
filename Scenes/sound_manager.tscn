@@ -1,0 +1,51 @@
+[gd_scene load_steps=11 format=3 uid="uid://b1xoshxma58jl"]
+
+[ext_resource type="Script" uid="uid://cjju02wqf188h" path="res://Scripts/sound_manager.gd" id="1_lw6xy"]
+[ext_resource type="AudioStream" uid="uid://bu756i3lh25h3" path="res://Assets/Sounds/pacman_chomp.wav" id="2_rqs6t"]
+[ext_resource type="AudioStream" uid="uid://100ohtpyo02o" path="res://Assets/Sounds/pacman_eatghost.wav" id="3_h0di3"]
+[ext_resource type="AudioStream" uid="uid://c4b0pvuyylv4a" path="res://Assets/Sounds/pacman_power_pellet.wav" id="4_n5cwv"]
+[ext_resource type="AudioStream" uid="uid://bnxugtt2eriq0" path="res://Assets/Sounds/pacman_death.wav" id="5_w8ulo"]
+[ext_resource type="AudioStream" uid="uid://ced2xowdxwkhc" path="res://Assets/Sounds/Pacman_Extra_Live_Sound_Effect.wav" id="6_sojss"]
+[ext_resource type="AudioStream" uid="uid://dwvhdfa4sblce" path="res://Assets/Sounds/Pacman_Siren_Sound_Effect.wav" id="7_kquec"]
+[ext_resource type="AudioStream" uid="uid://doyhdfa4nq5lj" path="res://Assets/Sounds/Pacman_Opening_Song_Sound_Effect.wav" id="8_lb7tw"]
+[ext_resource type="AudioStream" uid="uid://dlx5lubftx31v" path="res://Assets/Sounds/Pacman_Intermission_Sound_Effect.wav" id="9_20vxg"]
+[ext_resource type="AudioStream" uid="uid://bph0kh1cgoo6f" path="res://Assets/Sounds/Pacman_Eating_Cherry_Sound_Effect.wav" id="10_i418q"]
+
+[node name="SoundManager" type="Node"]
+script = ExtResource("1_lw6xy")
+
+[node name="ChompSoundPlayer" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("2_rqs6t")
+bus = &"Sound"
+
+[node name="EatGhostSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("3_h0di3")
+bus = &"Sound"
+
+[node name="PowerPelletSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("4_n5cwv")
+bus = &"Music"
+
+[node name="PacmanDeathSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("5_w8ulo")
+bus = &"Sound"
+
+[node name="PacmanExtraLiveSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("6_sojss")
+bus = &"Sound"
+
+[node name="PacmanSirenSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("7_kquec")
+bus = &"Music"
+
+[node name="PacmanOpeningSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("8_lb7tw")
+bus = &"Music"
+
+[node name="IntermissionSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("9_20vxg")
+bus = &"Music"
+
+[node name="PacmanEatCherrySound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("10_i418q")
+bus = &"Sound"

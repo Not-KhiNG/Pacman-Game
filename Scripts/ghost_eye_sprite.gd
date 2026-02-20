@@ -9,6 +9,7 @@ class_name EyeSprite
 @export var right: Texture2D
 @export_group("")
 
+@onready var animation_player: AnimationPlayer = $"../AnimationPlayer"
 @onready var direction_lookup_table = {
 	"down": down,
 	"up": up,
@@ -27,3 +28,7 @@ func hide_eyes():
 	
 func show_eyes():
 	show()
+
+func start_blinking():
+	if animation_player:
+		animation_player.play("blinking")

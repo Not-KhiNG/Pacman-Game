@@ -6,13 +6,17 @@
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_3383t"]
 size = Vector2(12, 12)
 
-[node name="Pellet" type="Area2D"]
+[node name="Pellet" type="Area2D" groups=["pellet"]]
+collision_layer = 4
 script = ExtResource("1_3383t")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 texture = ExtResource("1_mob2t")
+region_enabled = true
+region_rect = Rect2(5.9819584, 6.106147, 12.002584, 11.822093)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+visible = false
 shape = SubResource("RectangleShape2D_3383t")
 
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]

@@ -21,5 +21,6 @@ func game_lost():
 	center_container.show()
 
 func game_won():
-	game_label.text = "Game won"
+	game_label.text = "Levelling UP"
 	center_container.show()
+	#get_tree().change_scene_to_file("res://Scenes/level_2.tscn")

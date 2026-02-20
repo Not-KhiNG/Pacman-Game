@@ -1,0 +1,21 @@
+[gd_scene load_steps=4 format=3 uid="uid://d2iqb1aa328v3"]
+
+[ext_resource type="Script" uid="uid://diraaaxggf6ry" path="res://Scripts/fruit.gd" id="1_umlr1"]
+[ext_resource type="Texture2D" uid="uid://x0h1ank871tc" path="res://Assets/Walls/Fruits/Fruit_Bell.png" id="2_xo7uo"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_725hh"]
+radius = 5.0
+height = 14.0
+
+[node name="Bell" type="Area2D"]
+scale = Vector2(2, 2)
+script = ExtResource("1_umlr1")
+points = 3000
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_xo7uo")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CapsuleShape2D_725hh")
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]

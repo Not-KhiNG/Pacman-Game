@@ -6,7 +6,8 @@
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_8vpti"]
 size = Vector2(24, 24)
 
-[node name="LargePellet" type="Area2D"]
+[node name="LargePellet" type="Area2D" groups=["pellet"]]
+collision_layer = 8
 script = ExtResource("1_8vpti")
 should_allow_eating_ghosts = true
 
@@ -17,3 +18,5 @@ texture = ExtResource("1_yp6nm")
 shape = SubResource("RectangleShape2D_8vpti")
 
 [node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="."]
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]

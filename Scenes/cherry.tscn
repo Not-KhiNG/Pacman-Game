@@ -1,0 +1,19 @@
+[gd_scene load_steps=4 format=3 uid="uid://vc5o1tkh4hnn"]
+
+[ext_resource type="Script" uid="uid://diraaaxggf6ry" path="res://Scripts/fruit.gd" id="1_o20pv"]
+[ext_resource type="Texture2D" uid="uid://cfte7ar5s4or5" path="res://Assets/Walls/Fruits/Fruit_Cherry.png" id="2_ea3nj"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_8cj1e"]
+radius = 6.0827627
+
+[node name="Cherry" type="Area2D"]
+scale = Vector2(2, 2)
+script = ExtResource("1_o20pv")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_ea3nj")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_8cj1e")
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]

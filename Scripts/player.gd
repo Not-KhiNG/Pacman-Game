@@ -7,14 +7,17 @@ signal player_died(life: int)
 var next_movement_direction = Vector2.ZERO
 var movement_direction = Vector2.ZERO
 var shape_query = PhysicsShapeQueryParameters2D.new()
+var alive := true
+
+var direction : Vector2:
+	get:
+		return movement_direction
 
 # Export Variables
 @export var speed = 300
 @export var turn_check_distance = 24.0
 @export var start_position: Node2D
-@export var pacman_death_sound_player: AudioStreamPlayer2D
 @export var pellets_manager: PelletsManager
-@export var lifes: int = 2
 @export var ui: UI
 
 # Onready Variables
@@ -27,7 +30,7 @@ func _ready():
 	shape_query.collide_with_areas = false
 	shape_query.collide_with_bodies = true
 	shape_query.collision_mask = 2
-	ui.set_lifes(lifes)
+	#ui.set_lifes(lifes)
 	reset_player()
 
 func reset_player():
@@ -38,6 +41,8 @@ func reset_player():
 	movement_direction = Vector2.ZERO
 
 func _physics_process(_delta):
+	if GameManager.is_safe_state:
+		return
 	get_input()
 	if can_move_in_direction(next_movement_direction):
 		movement_direction = next_movement_direction
@@ -66,20 +71,21 @@ func can_move_in_direction(dir: Vector2) -> bool:
 	return result.is_empty()
 
 func die():
+	if not alive:
+		return
+	alive = false  # Mark as dead
 
-	pellets_manager.power_pellet_sound_player.stop()
-	if !pacman_death_sound_player.playing:
-		pacman_death_sound_player.play()
-	animation_player.play("death")
 	set_physics_process(false)
+	animation_player.play("death")
+	SoundManager.play_sfx("death")
+
+	GameManager.on_player_died()
 
 func _on_animation_player_animation_finished(anim_name: StringName) -> void:
 	if anim_name == "death":
-		lifes -= 1
-		ui.set_lifes(lifes)
-		player_died.emit(lifes)
-		if lifes != 0:
-			
+		#GameManager.lose_life()
+
+		if GameManager.lives > 0:
 			reset_player()
 		else:
 			position = start_position.position

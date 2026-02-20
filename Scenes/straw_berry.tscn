@@ -1,0 +1,20 @@
+[gd_scene load_steps=4 format=3 uid="uid://dw3h0dffbad2c"]
+
+[ext_resource type="Script" uid="uid://diraaaxggf6ry" path="res://Scripts/fruit.gd" id="1_uk2lt"]
+[ext_resource type="Texture2D" uid="uid://cxmu4ootq1s7a" path="res://Assets/Walls/Fruits/Fruit_Strawberry.png" id="2_jyyot"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_44ldr"]
+radius = 6.0
+
+[node name="StrawBerry" type="Area2D"]
+scale = Vector2(2, 2)
+script = ExtResource("1_uk2lt")
+points = 300
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_jyyot")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_44ldr")
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]

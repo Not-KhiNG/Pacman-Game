@@ -1,0 +1,21 @@
+[gd_scene load_steps=4 format=3 uid="uid://dkaft5o8bs628"]
+
+[ext_resource type="Script" uid="uid://diraaaxggf6ry" path="res://Scripts/fruit.gd" id="1_ut0wq"]
+[ext_resource type="Texture2D" uid="uid://dlidbbc5u1syk" path="res://Assets/Walls/Fruits/Fruit_Key.png" id="2_udxw8"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_brn0f"]
+size = Vector2(7, 13)
+
+[node name="Key" type="Area2D"]
+scale = Vector2(2, 2)
+script = ExtResource("1_ut0wq")
+points = 5000
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_udxw8")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(-0.5, -0.5)
+shape = SubResource("RectangleShape2D_brn0f")
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]

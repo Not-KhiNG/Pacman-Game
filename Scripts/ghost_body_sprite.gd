@@ -14,7 +14,7 @@ func move():
 	
 func run_away():
 	self.modulate = Color.BLUE
-	animation_player.play("running_away")
+	animation_player.play("run_away")
 
-func start_blinking():
-	animation_player.play("blinking")
+#func start_blinking():
+	#animation_player.play("blinking")

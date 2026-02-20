@@ -1,0 +1,20 @@
+[gd_scene load_steps=4 format=3 uid="uid://detej0rne0q78"]
+
+[ext_resource type="Script" uid="uid://diraaaxggf6ry" path="res://Scripts/fruit.gd" id="1_v3gsn"]
+[ext_resource type="Texture2D" uid="uid://cxaqclbph28p4" path="res://Assets/Walls/Fruits/Fruit_Apple.png" id="2_ir1en"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_8gwai"]
+radius = 6.0
+
+[node name="Apple" type="Area2D"]
+scale = Vector2(2, 2)
+script = ExtResource("1_v3gsn")
+points = 700
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_ir1en")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_8gwai")
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]

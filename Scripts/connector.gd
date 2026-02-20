@@ -11,7 +11,7 @@ func _on_right_area_2d_body_entered(body: Node2D) -> void:
 		body.position.x = left_area_2d.global_position.x
 	allow_left_transition = false
 
-func _on_right_area_2d_body_exited(body: Node2D) -> void:
+func _on_right_area_2d_body_exited(_body: Node2D) -> void:
 	allow_left_transition = true
 
 func _on_left_area_2d_body_entered(body: Node2D) -> void:
@@ -19,5 +19,5 @@ func _on_left_area_2d_body_entered(body: Node2D) -> void:
 		body.position.x = right_area_2d.global_position.x
 	allow_right_transition = false
 
-func _on_left_area_2d_body_exited(body: Node2D) -> void:
+func _on_left_area_2d_body_exited(_body: Node2D) -> void:
 	allow_right_transition = true
